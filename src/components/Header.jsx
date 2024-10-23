@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LOGO } from "../utils/constants";
+import LOGO from "../assets/BrandLogo.svg";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { toggleAiSearchComponent } from "../redux/aiSearchSlice";
 import lang from "../config/languages";
 import { switchLanguage } from "../redux/langSlice";
 import aiIcon from "../assets/magicoon.svg";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const user = useSelector((store) => store.user);
@@ -38,10 +39,12 @@ const Header = () => {
   };
 
   return (
-    <header className="absolute z-50 w-full bg-gradient-to-b from-black">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <header className="absolute z-50 w-full bg-gradient-to-b from-black sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4">
         <div className="flex items-center justify-between py-4">
-          <img className="h-8 w-auto sm:h-10" src={LOGO} alt="MovieDock" />
+          <Link className="cursor-pointer" to={user ? "/browse" : "/"}>
+            <img className="h-8 w-auto sm:h-10" src={LOGO} alt="MovieDock" />
+          </Link>
 
           <div className="flex items-center space-x-4">
             {showAiSearchComponent && (
