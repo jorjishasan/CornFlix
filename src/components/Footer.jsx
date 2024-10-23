@@ -1,4 +1,3 @@
-import React from "react";
 import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
@@ -10,7 +9,7 @@ const Footer = () => {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
-              <h3 className="mb-4 text-2xl font-bold text-white">MovieDock</h3>
+              <h3 className="mb-4 text-2xl font-bold text-white">CornFlix</h3>
               <p className="mb-4">
                 Discover your next favorite movie with AI-powered
                 recommendations.
@@ -102,7 +101,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="mt-8 border-t border-gray-800 pt-8 text-center">
-            <p>&copy; 2024 MovieDock. All rights reserved.</p>
+            <p>&copy; 2024 CornFlix. All rights reserved.</p>
           </div>
         </div>
       </footer>
