@@ -1,4 +1,4 @@
-# NetflixGPT
+# CornFlix
 
 - Create React App
 - Configured TailwindCSS
@@ -53,15 +53,6 @@
     - MovieSuggestions
       - MovieList \* Netflix
 
-- Netflix GPT
+- AI Search
   - Search Bar
   - Movie Suggestions
-
-Suppose I have three components <Header/>, <Browse/>, <Login/>
-
-I want <Header/> to be stick on each navigation. Navigations are like:
-
-- if path is "/" it will render 'Login' component
-- if path is "/Browse" it will render 'Browse' component
-
-Tools i've used here 'react-router-dom', Now configure the routing In top level Component 'App.js'
