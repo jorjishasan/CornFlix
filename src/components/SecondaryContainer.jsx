@@ -9,11 +9,15 @@ const SecondaryContainer = () => {
   return (
     movies && (
       <div className="bg-black">
-        <div className="relative -mt-40 pl-10">
+        <div className="relative sm:m-0 lg:-mt-56 lg:pl-10">
           {MOVIE_CATEGORIES.map((category) => (
             <MovieList
               key={category}
-              title={category}
+              title={category
+                .toLowerCase()
+                .split("_")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ")}
               movies={movies[category]}
             />
           ))}
