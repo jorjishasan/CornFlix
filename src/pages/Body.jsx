@@ -8,6 +8,7 @@ import { addUser, removeUser } from "../redux/userSlice";
 const Body = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -29,7 +30,7 @@ const Body = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [dispatch, navigate]);
 
   return <Outlet />;
 };
