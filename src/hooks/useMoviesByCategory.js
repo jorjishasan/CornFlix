@@ -3,11 +3,12 @@ import { useDispatch } from "react-redux";
 import { TMDB_API_OPTIONS } from "../utils/constants";
 import { addMoviesByCategory } from "../redux/moviesSlice";
 import { useEffect } from "react";
+import MOVIE_CATEGORIES from "../config/movieCategory";
 
-const useMoviesByCategory = (category) => {
+const useMoviesByCategory = () => {
   const dispatch = useDispatch();
 
-  const getMoviesByCategory = async () => {
+  const getMoviesByCategory = async (category) => {
     try {
       const data = await fetch(
         `https://api.themoviedb.org/3/movie/${category}?page=1`,
@@ -21,8 +22,8 @@ const useMoviesByCategory = (category) => {
   };
 
   useEffect(() => {
-    getMoviesByCategory();
-  }, [category]);
+    MOVIE_CATEGORIES.forEach((category) => getMoviesByCategory(category));
+  }, []);
 };
 
 export default useMoviesByCategory;

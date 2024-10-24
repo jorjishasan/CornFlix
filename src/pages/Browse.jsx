@@ -2,14 +2,14 @@ import { useSelector } from "react-redux";
 import AiSearch from "../components/AiSearch";
 import MainContainer from "../components/MainContainer";
 import SecondaryContainer from "../components/SecondaryContainer";
-import useAllMovieCategories from "../hooks/useAllMovieCategories";
+import useMoviesByCategory from "../hooks/useMoviesByCategory";
 
 const Browse = () => {
   const showAiComponent = useSelector(
     (store) => store.aiSearch.showAiSearchComponent,
   );
 
-  useAllMovieCategories();
+  useMoviesByCategory();
 
   /* 
   Main Container
