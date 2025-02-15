@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setMovieNames } from "../redux/aiSearchSlice";
-import nvidiaClient from "../config/nvidiaConfig";
+import openAiClient from "../config/openAiConfig";
 
-const useNvidiaApi = () => {
+const useOpenAiChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -15,12 +15,19 @@ const useNvidiaApi = () => {
     setError(null);
 
     try {
-      const response = await nvidiaClient.post("/nim", {
-        model: "meta/llama-3.1-405b-instruct",
-        messages: [{ role: "user", content: query }],
-        temperature: 0.2,
-        top_p: 0.7,
-        max_tokens: 1024,
+      const response = await openAiClient.post("/chat", {
+        messages: [
+          {
+            role: "system",
+            content: "You are a movie recommendation assistant. Provide only movie titles as a comma-separated list."
+          },
+          { 
+            role: "user", 
+            content: query 
+          }
+        ],
+        model: "gpt-3.5-turbo-16k",
+        store: true,
       });
 
       const movieList = response.choices[0].message.content
@@ -28,7 +35,7 @@ const useNvidiaApi = () => {
         .map((movie) => movie.trim());
       dispatch(setMovieNames(movieList));
     } catch (err) {
-      console.error("Error calling NVIDIA NIM API:", err);
+      console.error("Error calling OpenAI API:", err);
       setError("An error occurred while processing your request.");
     } finally {
       setIsLoading(false);
@@ -38,4 +45,4 @@ const useNvidiaApi = () => {
   return { isLoading, error, fetchResult };
 };
 
-export default useNvidiaApi;
+export default useOpenAiChat; 

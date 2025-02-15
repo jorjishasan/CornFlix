@@ -1,6 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
 
-const nvidiaClient = {
+const openAiClient = {
   post: async (endpoint, data) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
@@ -18,4 +18,4 @@ const nvidiaClient = {
   },
 };
 
-export default nvidiaClient;
+export default openAiClient; 
