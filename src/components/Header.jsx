@@ -4,7 +4,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleAiSearch } from "../redux/aiSearchSlice";
+import { toggleAiSearchComponent } from "../redux/aiSearchSlice";
 import { Link } from "react-router-dom";
 import { 
   FaRobot, FaSignOutAlt, FaCog, FaChevronDown,
@@ -92,7 +92,7 @@ const Header = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => dispatch(toggleAiSearch())}
+              onClick={() => dispatch(toggleAiSearchComponent())}
               className={`flex items-center gap-2 rounded-sm px-4 py-1.5 transition-all duration-300 ${
                 showAiSearchComponent
                   ? "bg-purple-600 text-white hover:bg-purple-700"

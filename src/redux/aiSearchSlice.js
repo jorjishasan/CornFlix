@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  showAiSearchComponent: false,
+  showAiSearch: false,
   movieNames: null,
   moviesData: null,
 };
@@ -11,7 +11,7 @@ const aiSearchSlice = createSlice({
   initialState,
   reducers: {
     toggleAiSearchComponent: (state) => {
-      state.showAiSearchComponent = !state.showAiSearchComponent;
+      state.showAiSearch = !state.showAiSearch;
     },
     setMovieNames: (state, action) => {
       state.movieNames = action.payload;
