@@ -1,16 +1,19 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import useMovieTrailer from "../hooks/useMovieTrailer";
 import { FaPlay, FaPlus, FaThumbsUp, FaClock, FaStar, FaCalendar } from "react-icons/fa";
 
 const PopupMovieDetails = ({ movie, x }) => {
   useMovieTrailer(movie?.id);
+  const navigate = useNavigate();
   const trailer = useSelector((store) => store.movies?.trailerMap?.[movie?.id]);
 
   if (!movie || x === null) return null;
 
   const {
+    id,
     title,
     overview,
     vote_average,
@@ -18,6 +21,10 @@ const PopupMovieDetails = ({ movie, x }) => {
     original_language,
     popularity
   } = movie;
+
+  const handlePlayClick = () => {
+    navigate(`/browse/${id}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+  };
 
   const style = {
     left: `${Math.min(Math.max(x, 0), window.innerWidth - 400)}px`,
@@ -88,9 +95,10 @@ const PopupMovieDetails = ({ movie, x }) => {
         </p>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="pointer-events-auto flex items-center gap-3">
           <motion.button
             whileHover={{ scale: 1.05 }}
+            onClick={handlePlayClick}
             className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90"
           >
             <FaPlay className="text-xs" />
