@@ -1,51 +1,35 @@
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setMoviesData } from "../redux/aiSearchSlice";
+import { useState, useCallback } from "react";
 import { TMDB_API_OPTIONS } from "../utils/constants";
 
 const useSearchMoviesByName = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const dispatch = useDispatch();
-  const movieNames = useSelector((state) => state.aiSearch.movieNames);
 
-  useEffect(() => {
-    const fetchMovies = async () => {
-      if (!movieNames || movieNames.length === 0) return;
+  const searchMovies = useCallback(async (movieName) => {
+    if (!movieName) return null;
 
-      setIsLoading(true);
-      setError(null);
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
+          movieName
+        )}&include_adult=false&language=en-US&page=1`,
+        TMDB_API_OPTIONS
+      );
 
-      // Instead of clearing, we'll just overwrite with new data
-      try {
-        const moviePromises = movieNames.map(async (movieName) => {
-          const response = await fetch(
-            `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
-              movieName,
-            )}&include_adult=false&language=en-US&page=1`,
-            TMDB_API_OPTIONS,
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          return data.results;
-        });
-
-        const moviesData = await Promise.all(moviePromises);
-        dispatch(setMoviesData(moviesData));
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-        setError("An error occurred while fetching movie data.");
-      } finally {
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
 
-    fetchMovies();
-  }, [movieNames, dispatch]);
+      const data = await response.json();
+      // Return the first (most relevant) result
+      return data.results?.[0] || null;
+    } catch (err) {
+      console.error(`Error searching for movie "${movieName}":`, err);
+      return null;
+    }
+  }, []);
 
-  return { isLoading, error };
+  return { isLoading, error, searchMovies };
 };
 
 export default useSearchMoviesByName;
