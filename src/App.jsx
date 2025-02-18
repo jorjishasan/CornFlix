@@ -1,34 +1,55 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Header from "./components/Header";
-import Body from "./pages/Body";
 import Footer from "./components/Footer";
-import Login from "./pages/Login";
 import Browse from "./pages/Browse";
+import MovieDetails from "./pages/MovieDetails";
+import Login from "./pages/Login";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./config/firebase";
+import { useDispatch } from "react-redux";
+import { addUser, removeUser } from "./redux/userSlice";
 
 const App = () => {
+  const dispatch = useDispatch();
   const showAiSearchComponent = useSelector(
     (store) => store.aiSearch.showAiSearchComponent
   );
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (
-        <>
-          <Header />
-          <Body />
-          {!showAiSearchComponent && <Footer />}
-        </>
-      ),
-      children: [
-        { path: "/", element: <Login /> }, // Default route
-        { path: "/browse", element: <Browse /> }, // Browse route
-      ],
-    },
-  ]);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { uid, email, displayName, photoURL } = user;
+        dispatch(
+          addUser({
+            uid: uid,
+            email: email,
+            displayName: displayName,
+            photoURL: photoURL,
+          }),
+        );
+      } else {
+        dispatch(removeUser());
+      }
+    });
 
-  return <RouterProvider router={router} />;
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <Router>
+      <div className="relative min-h-screen">
+        <Header />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/browse/:movieId" element={<MovieDetails />} />
+        </Routes>
+        {!showAiSearchComponent && <Footer />}
+      </div>
+    </Router>
+  );
 };
 
 export default App;
