@@ -10,6 +10,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase";
 import { useDispatch } from "react-redux";
 import { addUser, removeUser } from "./redux/userSlice";
+import RouteGuard from "./components/RouteGuard";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -35,16 +36,37 @@ const App = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Router>
       <div className="relative min-h-screen">
         <Header />
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/browse" element={<Browse />} />
-          <Route path="/browse/:movieId" element={<MovieDetails />} />
+          <Route
+            path="/"
+            element={
+              <RouteGuard requireAuth={false}>
+                <Login />
+              </RouteGuard>
+            }
+          />
+          <Route
+            path="/browse"
+            element={
+              <RouteGuard requireAuth={true}>
+                <Browse />
+              </RouteGuard>
+            }
+          />
+          <Route
+            path="/browse/:movieId"
+            element={
+              <RouteGuard requireAuth={true}>
+                <MovieDetails />
+              </RouteGuard>
+            }
+          />
         </Routes>
         {!showAiSearchComponent && <Footer />}
       </div>
