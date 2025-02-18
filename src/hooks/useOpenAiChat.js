@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setMovieRecommendations } from "../redux/clickedMovieSlice";
+import { setMovieRecommendations, clearRecommendations } from "../redux/clickedMovieSlice";
 import openAiClient from "../config/openAiConfig";
 import { setError as setGlobalError } from "../redux/creditSlice";
 import { getUserCredits, deductCredit } from "../services/creditService";
@@ -13,6 +13,13 @@ const useOpenAiChat = () => {
   const user = useSelector((store) => store.user);
   const requestInProgress = useRef(false);
 
+  // Clear recommendations when unmounting
+  useEffect(() => {
+    return () => {
+      dispatch(clearRecommendations());
+    };
+  }, [dispatch]);
+
   const fetchRecommendations = useCallback(async () => {
     if (!clickedMovie?.title || !user?.uid) {
       setError("Required data is missing");
@@ -24,6 +31,7 @@ const useOpenAiChat = () => {
     setIsLoading(true);
     setError(null);
     dispatch(setGlobalError(null));
+    dispatch(clearRecommendations()); // Clear old recommendations before fetching new ones
     requestInProgress.current = true;
 
     try {
