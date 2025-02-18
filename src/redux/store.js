@@ -3,6 +3,7 @@ import userReducer from "./userSlice";
 import moviesReducer from "./moviesSlice";
 import aiSearchReducer from "./aiSearchSlice";
 import langReducer from "./langSlice";
+import clickedMovieReducer from "./clickedMovieSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     movies: moviesReducer,
     aiSearch: aiSearchReducer,
     lang: langReducer,
+    clickedMovie: clickedMovieReducer,
   },
 });
 
