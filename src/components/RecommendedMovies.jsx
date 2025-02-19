@@ -1,114 +1,114 @@
-import { useEffect, useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useOpenAiChat from "../hooks/useOpenAiChat";
-import { setClickedMovie } from "../redux/clickedMovieSlice";
-import MovieCard from "./MovieCard";
-import MovieShimmer from "./MovieShimmer";
+import useSearchMoviesByName from "../hooks/useSearchMoviesByName";
+import { 
+  setClickedMovie, 
+  clearRecommendations 
+} from "../redux/clickedMovieSlice";
+import RecommendedMoviesGrid from "./RecommendedMoviesGrid";
+import RecommendedMovieShimmer from "./RecommendedMovieShimmer";
+import CreditPurchasePrompt from "./CreditPurchasePrompt";
 
 const RecommendedMovies = ({ movie }) => {
   const dispatch = useDispatch();
-  const { isLoading, fetchAndProcessRecommendations } = useOpenAiChat();
-  const recommendations = useSelector((store) => store?.clickedMovie?.recommendations);
+  const { isLoading: isLoadingRecommendations, error, fetchRecommendations } = useOpenAiChat();
+  const { searchMovies } = useSearchMoviesByName();
+  const [isLoadingMovies, setIsLoadingMovies] = useState(false);
+  const [processedMovies, setProcessedMovies] = useState([]);
+  
+  const credits = useSelector((store) => store.credits.count);
+  const recommendedTitles = useSelector((store) => store.clickedMovie.recommendations);
+  const globalError = useSelector((store) => store.credits.error);
+  const currentMovieId = useSelector((store) => store.clickedMovie.movieData?.id);
 
-  // Memoize movie data to prevent unnecessary re-renders
-  const movieData = useMemo(() => ({
-    id: movie?.id,
-    title: movie?.title,
-    genres: movie?.genres?.map(g => g.name) || []
-  }), [movie?.id, movie?.title, movie?.genres]);
-
+  // Get AI recommendations when movie changes
   useEffect(() => {
-    if (movieData.title && movieData.genres.length) {
-      dispatch(setClickedMovie(movieData));
-      fetchAndProcessRecommendations();
-    }
-  }, [movieData, dispatch, fetchAndProcessRecommendations]);
+    const getRecommendations = async () => {
+      if (!movie || credits <= 0) return;
+      
+      // Only fetch if movie changed or no recommendations
+      if (movie.id !== currentMovieId || !recommendedTitles?.length) {
+        dispatch(clearRecommendations());
+        setProcessedMovies([]);
+        dispatch(setClickedMovie(movie));
+        await fetchRecommendations();
+      }
+    };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
+    getRecommendations();
+  }, [movie?.id, credits, currentMovieId, dispatch, fetchRecommendations, recommendedTitles?.length]);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
-  };
+  // Process recommended movies
+  useEffect(() => {
+    const processMovies = async () => {
+      if (!recommendedTitles?.length) return;
+      
+      setIsLoadingMovies(true);
+      try {
+        const movies = await Promise.all(
+          recommendedTitles.map(title => searchMovies(title))
+        );
+        setProcessedMovies(movies.filter(Boolean));
+      } catch (error) {
+        console.error("Error processing movies:", error);
+      } finally {
+        setIsLoadingMovies(false);
+      }
+    };
+
+    processMovies();
+  }, [recommendedTitles, searchMovies]);
+
+  // Handle loading and error states
+  if (credits <= 0 || globalError?.includes("Insufficient credits")) {
+    return <CreditPurchasePrompt />;
+  }
+
+  if (isLoadingRecommendations || isLoadingMovies) {
+    return (
+      <div className="px-6">
+        <h2 className="mb-4 text-lg font-medium text-white md:text-xl">
+          {isLoadingRecommendations ? "Getting AI Recommendations..." : "Loading Movies..."}
+        </h2>
+        <RecommendedMovieShimmer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="px-6">
+        <h2 className="mb-4 text-lg font-medium text-red-500 md:text-xl">
+          {error}
+        </h2>
+      </div>
+    );
+  }
+
+  if (!processedMovies.length) return null;
 
   return (
-    <div className="space-y-8">
-      {/* Section Title */}
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl font-bold text-white"
-      >
-        More Like This
-      </motion.h2>
+    <div className="space-y-6">
+      <div className="px-6">
+        <h2 className="text-lg font-medium text-white md:text-xl">
+          AI Recommended Movies
+        </h2>
+        
+        {/* Movie Tags */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {movie.genres?.map((genre) => (
+            <span
+              key={genre.id}
+              className="inline-flex items-center rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-500/10 px-3 py-1 text-sm text-gray-300 ring-1 ring-inset ring-white/10 backdrop-blur-sm"
+            >
+              {genre.name}
+            </span>
+          ))}
+        </div>
+      </div>
 
-      {/* Genre Tags */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-wrap gap-2"
-      >
-        {movie?.genres?.map((genre, index) => (
-          <span
-            key={index}
-            className="rounded-full bg-white/10 px-4 py-1 text-sm text-white backdrop-blur-sm"
-          >
-            {genre.name}
-          </span>
-        ))}
-      </motion.div>
-
-      {/* Movies Grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={isLoading ? 'loading' : 'content'}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-        >
-          {isLoading ? (
-            // Shimmer Loading State with flex-grow
-            Array(12).fill(null).map((_, index) => (
-              <motion.div
-                key={`shimmer-${index}`}
-                variants={itemVariants}
-                className="flex aspect-[2/3] w-full"
-              >
-                <div className="flex-grow">
-                  <MovieShimmer />
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            // Actual Movies
-            recommendations?.map((movie, index) => (
-              <motion.div
-                key={`movie-${movie.id}-${index}`}
-                variants={itemVariants}
-                className="flex aspect-[2/3] w-full"
-              >
-                <div className="flex-grow">
-                  <MovieCard movie={movie} />
-                </div>
-              </motion.div>
-            ))
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <RecommendedMoviesGrid movies={processedMovies} />
     </div>
   );
 };

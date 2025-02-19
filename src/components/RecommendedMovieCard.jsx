@@ -1,38 +1,69 @@
-import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { FaStar, FaRobot } from "react-icons/fa";
 import { IMG_CDN_URL } from "../utils/constants";
 
 const RecommendedMovieCard = ({ movie }) => {
-  const fallbackImageUrl =
-    "https://images.unsplash.com/photo-1568038904349-849e9a803462?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-
-  const backdropUrl = movie.backdrop_path
-    ? `${IMG_CDN_URL}${movie.backdrop_path}`
-    : fallbackImageUrl;
+  const { id, poster_path, title, vote_average, overview, release_date } = movie;
 
   return (
-    <motion.div
-      className="relative cursor-pointer overflow-hidden rounded-lg shadow-lg transition-all duration-300 ease-in-out"
-      whileHover={{ scale: 1.05 }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <img
-        src={backdropUrl}
-        alt={movie.title}
-        className="h-auto w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-0 transition-opacity duration-300 hover:opacity-100">
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="mb-2 text-xl font-bold text-white">{movie.title}</h3>
-          <p className="mb-1 text-sm text-gray-300">
-            Release Date: {movie.release_date}
-          </p>
-          <p className="line-clamp-3 text-xs text-gray-400">{movie.overview}</p>
+    <Link to={`/browse/${id}`}>
+      <motion.div
+        className="group relative h-[280px] w-[200px] cursor-pointer overflow-hidden rounded-lg bg-zinc-900"
+        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.2 }}
+      >
+        {/* AI Badge */}
+        <div className="absolute right-2 top-2 z-10">
+          <motion.div 
+            className="flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600/90 via-purple-600/90 to-indigo-600/90 px-3 py-1.5 text-xs font-medium shadow-lg shadow-purple-500/20 backdrop-blur-sm"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="animate-pulse text-purple-200">✨</span>
+            <span className="bg-gradient-to-r from-purple-100 via-white to-purple-100 bg-clip-text font-semibold text-transparent">
+              CornflixAI
+            </span>
+            <span className="animate-pulse text-purple-200 [animation-delay:200ms]">✨</span>
+          </motion.div>
         </div>
-      </div>
-    </motion.div>
+
+        {/* Poster Image */}
+        <div className="relative h-full w-full">
+          <img
+            className="h-full w-full object-cover transition-all duration-300 group-hover:brightness-50"
+            src={IMG_CDN_URL + poster_path}
+            alt={title}
+            loading="lazy"
+          />
+          
+          {/* Hover Info Overlay */}
+          <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black via-black/50 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="flex items-center justify-end">
+              <div className="flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 backdrop-blur-sm">
+                <FaStar className="text-xs text-yellow-500" />
+                <span className="text-xs font-medium text-yellow-500">
+                  {Math.round(vote_average * 10)}%
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="line-clamp-2 text-sm font-medium text-white">
+                {title}
+              </h3>
+              <p className="line-clamp-2 text-xs text-gray-300">
+                {overview}
+              </p>
+              <p className="text-xs text-gray-400">
+                {new Date(release_date).getFullYear()}
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </Link>
   );
 };
 
