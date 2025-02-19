@@ -11,27 +11,43 @@ import { auth } from "./config/firebase";
 import { useDispatch } from "react-redux";
 import { addUser, removeUser } from "./redux/userSlice";
 import RouteGuard from "./components/RouteGuard";
+import WelcomeModal from "./components/WelcomeModal";
+import { getUserCredits } from "./services/creditService";
+import { setCredits, setLoading } from "./redux/creditSlice";
 
 const App = () => {
   const dispatch = useDispatch();
-  const showAiSearchComponent = useSelector(
-    (store) => store.aiSearch.showAiSearchComponent
-  );
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const { uid, email, displayName, photoURL } = user;
-        dispatch(
-          addUser({
-            uid: uid,
-            email: email,
-            displayName: displayName,
-            photoURL: photoURL,
-          }),
-        );
-      } else {
-        dispatch(removeUser());
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          const { uid, email, displayName, photoURL } = user;
+          
+          // Set loading state while we fetch credits
+          dispatch(setLoading(true));
+          
+          // Add user to Redux store
+          dispatch(
+            addUser({
+              uid: uid,
+              email: email,
+              displayName: displayName,
+              photoURL: photoURL,
+            })
+          );
+          
+          // Get user credits
+          const credits = await getUserCredits(uid);
+          dispatch(setCredits(credits));
+        } else {
+          dispatch(removeUser());
+          dispatch(setCredits(0));
+        }
+      } catch (error) {
+        console.error("Error in auth state change:", error);
+      } finally {
+        dispatch(setLoading(false));
       }
     });
 
@@ -68,7 +84,8 @@ const App = () => {
             }
           />
         </Routes>
-        {!showAiSearchComponent && <Footer />}
+        <Footer />
+        <WelcomeModal />
       </div>
     </Router>
   );

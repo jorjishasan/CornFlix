@@ -1,14 +1,8 @@
-import { useSelector } from "react-redux";
-import AiSearch from "../components/AiSearch";
 import MainContainer from "../components/MainContainer";
 import SecondaryContainer from "../components/SecondaryContainer";
 import useMoviesByCategory from "../hooks/useMoviesByCategory";
 
 const Browse = () => {
-  const showAiComponent = useSelector(
-    (store) => store.aiSearch.showAiSearchComponent,
-  );
-
   useMoviesByCategory();
 
   /* 
@@ -20,9 +14,7 @@ const Browse = () => {
       - cards * n
   
   */
-  return showAiComponent ? (
-    <AiSearch />
-  ) : (
+  return (
     <>
       <MainContainer />
       <SecondaryContainer />

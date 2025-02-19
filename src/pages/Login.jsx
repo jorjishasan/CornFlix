@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { BG_URL, USER_AVATAR } from "../utils/constants";
+import { BG_URL } from "../utils/constants";
 import { checkValidData } from "../utils/validate";
 import {
   createUserWithEmailAndPassword,
@@ -9,82 +9,139 @@ import {
 import { auth } from "../config/firebase";
 import { useDispatch } from "react-redux";
 import { addUser } from "../redux/userSlice";
+import { setShowWelcomeModal, setCredits, setLoading } from "../redux/creditSlice";
+import { initializeUserCredits } from "../services/creditService";
+
+// Array of cool avatar URLs
+const AVATAR_OPTIONS = [
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Bella&backgroundColor=ffd5dc",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=d1ffd7",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=ffdfbf",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=e2d1ff",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&backgroundColor=ffd1e8",
+];
+
+// Get random avatar URL
+const getRandomAvatar = () => {
+  return AVATAR_OPTIONS[Math.floor(Math.random() * AVATAR_OPTIONS.length)];
+};
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
-  const name = useRef();
-  const email = useRef(null);
-  const password = useRef(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const dispatch = useDispatch();
-  const handleButtonClick = () => {
-    const message = checkValidData(email.current.value, password.current.value);
-    setErrorMessage(message);
+  
+  // Initialize refs with null and use consistent naming
+  const nameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
-    if (message) return;
+  const handleButtonClick = async () => {
+    try {
+      // Get values safely with null checks
+      const emailValue = emailRef.current?.value;
+      const passwordValue = passwordRef.current?.value;
+      const nameValue = nameRef.current?.value;
 
-    // SignIn & SignUp Logic
-    if (isSignInForm) {
-      //SignIn Logic
-      signInWithEmailAndPassword(
-        auth,
-        email.current.value,
-        password.current.value,
-      )
-        .then((userCredential) => {
-          // Signed in
-          const user = userCredential.user;
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(errorCode + "-" + errorMessage);
-        });
-    } else {
-      //SignUp Logic
-      createUserWithEmailAndPassword(
-        auth,
-        email.current.value,
-        password.current.value,
-      )
-        .then((userCredential) => {
-          // Signed up
-          const user = userCredential.user;
-          updateProfile(user, {
-            displayName: name.current.value,
-            photoURL: USER_AVATAR,
+      if (!emailValue || !passwordValue) {
+        setErrorMessage("Please fill in all required fields");
+        return;
+      }
+
+      // Validate inputs
+      const message = checkValidData(emailValue, passwordValue);
+      if (message) {
+        setErrorMessage(message);
+        return;
+      }
+
+      // Additional validation for signup
+      if (!isSignInForm && (!nameValue || nameValue.trim() === "")) {
+        setErrorMessage("Please enter your name");
+        return;
+      }
+
+      dispatch(setLoading(true));
+      setErrorMessage(null);
+
+      if (isSignInForm) {
+        // Sign In Flow
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          emailValue,
+          passwordValue
+        );
+        
+        const user = userCredential.user;
+        
+        // Update Redux store with user info
+        dispatch(
+          addUser({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
           })
-            .then(() => {
-              // Profile updated!
-              const { uid, email, displayName, photoURL } = auth.currentUser;
-              dispatch(
-                addUser({
-                  uid: uid,
-                  email: email,
-                  displayName: displayName,
-                  photoURL: photoURL,
-                }),
-              );
-            })
-            .catch((error) => {
-              // An error occurred
-              // ...
-            });
-          // ...
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
+        );
 
-          setErrorMessage(errorCode, "+", errorMessage);
-          // ..
+        // Get and set credits
+        const credits = await initializeUserCredits(user.uid);
+        dispatch(setCredits(credits));
+      } else {
+        // Sign Up Flow
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          emailValue,
+          passwordValue
+        );
+        
+        const user = userCredential.user;
+        const displayName = nameValue.trim();
+        const photoURL = getRandomAvatar();
+        
+        // Update profile first
+        await updateProfile(user, {
+          displayName,
+          photoURL,
         });
+
+        // Initialize credits
+        const credits = await initializeUserCredits(user.uid);
+        
+        // Update Redux store
+        dispatch(
+          addUser({
+            uid: user.uid,
+            email: user.email,
+            displayName,
+            photoURL,
+          })
+        );
+        
+        // Set credits in Redux
+        dispatch(setCredits(credits));
+        
+        // Show welcome modal - remove setTimeout
+        dispatch(setShowWelcomeModal(true));
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      setErrorMessage(
+        error.code === "auth/email-already-in-use"
+          ? "Email already registered. Please sign in."
+          : error.message
+      );
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setErrorMessage(null);
   };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-black">
       <div className="absolute h-full w-full">
@@ -100,7 +157,7 @@ const Login = () => {
           </h1>
           {!isSignInForm && (
             <input
-              ref={name}
+              ref={nameRef}
               type="text"
               placeholder="Full Name"
               className="mb-4 w-full rounded bg-gray-700 p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -108,13 +165,13 @@ const Login = () => {
           )}
           <input
             type="text"
-            ref={email}
+            ref={emailRef}
             placeholder="Email Address"
             className="mb-4 w-full rounded bg-gray-700 p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
           />
           <input
             type="password"
-            ref={password}
+            ref={passwordRef}
             placeholder="Password"
             className="mb-4 w-full rounded bg-gray-700 p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
           />
