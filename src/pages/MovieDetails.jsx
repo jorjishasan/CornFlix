@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,6 +14,7 @@ import {
   setMovieRecommendations,
   clearRecommendations 
 } from "../redux/clickedMovieSlice";
+import RecommendedMovieShimmer from "../components/RecommendedMovieShimmer";
 
 const VideoPlayer = ({ trailer, title }) => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -176,21 +177,28 @@ const MovieDetails = () => {
   const { movieId } = useParams();
   const [movie, setMovie] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
   
-  // Call useMovieTrailer hook
-  useMovieTrailer(movieId);
-  const trailer = useSelector((store) => store.movies?.trailerMap?.[movieId]);
+  // Extract numeric ID if it's a string with a title
+  const numericId = useMemo(() => {
+    return typeof movieId === 'string' ? movieId.split('-')[0] : movieId;
+  }, [movieId]);
+  
+  // Call useMovieTrailer hook with numeric ID
+  useMovieTrailer(numericId);
+  const trailer = useSelector((store) => store.movies?.trailerMap?.[numericId]);
 
   // Clear recommendations and reset state when movieId changes
   useEffect(() => {
     dispatch(clearRecommendations());
     setMovie(null);
+    setIsLoading(true);
     
     const fetchMovieDetails = async () => {
       try {
         const response = await fetch(
-          `https://api.themoviedb.org/3/movie/${movieId}?append_to_response=credits,similar,videos`,
+          `https://api.themoviedb.org/3/movie/${numericId}?append_to_response=credits,similar,videos`,
           {
             headers: {
               Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
@@ -202,10 +210,12 @@ const MovieDetails = () => {
         dispatch(setClickedMovie(data));
       } catch (error) {
         console.error("Error fetching movie details:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (movieId) {
+    if (numericId) {
       fetchMovieDetails();
     }
 
@@ -213,12 +223,12 @@ const MovieDetails = () => {
     return () => {
       dispatch(clearRecommendations());
     };
-  }, [movieId, dispatch]);
+  }, [numericId, dispatch]);
 
-  if (!movie) {
+  if (isLoading || !movie) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-white/20 border-t-purple-600"></div>
+      <div className="min-h-screen bg-black pt-20">
+        <RecommendedMovieShimmer />
       </div>
     );
   }
@@ -231,7 +241,7 @@ const MovieDetails = () => {
           <section className="space-y-6">
             {/* Video Background */}
             <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-              <VideoBackground movieId={movieId} />
+              <VideoBackground movieId={numericId} />
             </div>
 
             {/* Title and Actions */}
