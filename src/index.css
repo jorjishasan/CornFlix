@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Netflix Sans Font */
+@font-face {
+  font-family: 'Netflix Sans';
+  font-weight: 100-900;
+  font-display: optional;
+  src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2'),
+       url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Netflix Sans Display';
+  font-weight: 100-900;
+  font-display: optional;
+  src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2'),
+       url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff') format('woff');
+}
+
+/* Base styles */
+body {
+  @apply font-sans bg-black text-white antialiased;
+}
+
+/* Hide scrollbar but keep functionality */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
