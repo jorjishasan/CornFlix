@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   movieData: null,
-  recommendations: null,
+  recommendations: [],
 };
 
 const clickedMovieSlice = createSlice({
@@ -15,12 +15,16 @@ const clickedMovieSlice = createSlice({
     setMovieRecommendations: (state, action) => {
       state.recommendations = action.payload;
     },
-    clearMovieData: (state) => {
-      state.movieData = null;
-      state.recommendations = null;
+    clearRecommendations: (state) => {
+      state.recommendations = [];
     },
   },
 });
 
-export const { setClickedMovie, setMovieRecommendations, clearMovieData } = clickedMovieSlice.actions;
+export const { 
+  setClickedMovie, 
+  setMovieRecommendations, 
+  clearRecommendations 
+} = clickedMovieSlice.actions;
+
 export default clickedMovieSlice.reducer; 
