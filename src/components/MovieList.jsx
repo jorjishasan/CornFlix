@@ -1,10 +1,8 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import MovieCard from "./MovieCard";
-import useScrollProgress from "../hooks/useScrollProgress";
-import useHoverCoordinates from "../hooks/useHoverCoordinates";
-import PopupMovieDetails from "./PopupMovieDetails";
 
 const ScrollButton = ({ direction, onClick, isVisible }) => (
   <motion.button
@@ -28,9 +26,6 @@ const MovieList = ({ title, movies }) => {
   const scrollContainerRef = useRef(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(true);
-  const scrollProgress = useScrollProgress(scrollContainerRef);
-  const [hoverX, handleMouseEnter, handleMouseLeave] = useHoverCoordinates();
-  const [hoveredMovie, setHoveredMovie] = useState(null);
 
   const handleScroll = () => {
     const container = scrollContainerRef.current;
@@ -50,19 +45,7 @@ const MovieList = ({ title, movies }) => {
     }
   };
 
-  const handleCardHover = (event, movie) => {
-    handleMouseEnter(event);
-    setHoveredMovie(movie);
-  };
-
-  const handleCardLeave = () => {
-    handleMouseLeave();
-    setHoveredMovie(null);
-  };
-
-  if (!movies || movies.length === 0) {
-    return null;
-  }
+  if (!movies?.length) return null;
 
   return (
     <motion.div
@@ -87,13 +70,13 @@ const MovieList = ({ title, movies }) => {
           onScroll={handleScroll}
         >
           {movies.map((movie) => (
-            <div
-              key={movie.id}
-              onMouseEnter={(e) => handleCardHover(e, movie)}
-              onMouseLeave={handleCardLeave}
+            <Link 
+              key={movie.id} 
+              to={`/browse/${movie.id}`}
+              className="flex-shrink-0"
             >
               <MovieCard movie={movie} />
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -102,20 +85,7 @@ const MovieList = ({ title, movies }) => {
           onClick={() => scroll("right")}
           isVisible={showRightScroll}
         />
-
-        {/* Scroll Progress Indicator */}
-        <div className="absolute bottom-0 left-1/2 h-1 w-20 -translate-x-1/2 overflow-hidden rounded-full bg-white/20">
-          <motion.div
-            className="h-full bg-white"
-            style={{ width: `${scrollProgress}%` }}
-            transition={{ duration: 0.1 }}
-          />
-        </div>
       </div>
-
-      {hoveredMovie && hoverX !== null && (
-        <PopupMovieDetails movie={hoveredMovie} x={hoverX} />
-      )}
     </motion.div>
   );
 };
