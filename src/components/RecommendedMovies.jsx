@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useOpenAiChat from "../hooks/useOpenAiChat";
 import useSearchMoviesByName from "../hooks/useSearchMoviesByName";
@@ -16,6 +16,7 @@ const RecommendedMovies = ({ movie }) => {
   const { searchMovies } = useSearchMoviesByName();
   const [isLoadingMovies, setIsLoadingMovies] = useState(false);
   const [processedMovies, setProcessedMovies] = useState([]);
+  const isProcessingRef = useRef(false);
   
   const credits = useSelector((store) => store.credits.count);
   const recommendedTitles = useSelector((store) => store.clickedMovie.recommendations);
@@ -24,23 +25,40 @@ const RecommendedMovies = ({ movie }) => {
 
   // Get AI recommendations when movie changes
   useEffect(() => {
+    let isMounted = true;
+
     const getRecommendations = async () => {
-      if (!movie || credits <= 0) return;
+      if (!movie || credits <= 0 || isProcessingRef.current) return;
       
       // Only fetch if movie changed or no recommendations
       if (movie.id !== currentMovieId || !recommendedTitles?.length) {
-        dispatch(clearRecommendations());
-        setProcessedMovies([]);
-        dispatch(setClickedMovie(movie));
-        await fetchRecommendations();
+        try {
+          isProcessingRef.current = true;
+          dispatch(clearRecommendations());
+          setProcessedMovies([]);
+          dispatch(setClickedMovie(movie));
+          
+          if (isMounted) {
+            await fetchRecommendations();
+          }
+        } finally {
+          isProcessingRef.current = false;
+        }
       }
     };
 
     getRecommendations();
+
+    return () => {
+      isMounted = false;
+      isProcessingRef.current = false;
+    };
   }, [movie?.id, credits, currentMovieId, dispatch, fetchRecommendations, recommendedTitles?.length]);
 
   // Process recommended movies
   useEffect(() => {
+    let isMounted = true;
+
     const processMovies = async () => {
       if (!recommendedTitles?.length) return;
       
@@ -49,15 +67,23 @@ const RecommendedMovies = ({ movie }) => {
         const movies = await Promise.all(
           recommendedTitles.map(title => searchMovies(title))
         );
-        setProcessedMovies(movies.filter(Boolean));
+        if (isMounted) {
+          setProcessedMovies(movies.filter(Boolean));
+        }
       } catch (error) {
         console.error("Error processing movies:", error);
       } finally {
-        setIsLoadingMovies(false);
+        if (isMounted) {
+          setIsLoadingMovies(false);
+        }
       }
     };
 
     processMovies();
+
+    return () => {
+      isMounted = false;
+    };
   }, [recommendedTitles, searchMovies]);
 
   // Handle loading and error states

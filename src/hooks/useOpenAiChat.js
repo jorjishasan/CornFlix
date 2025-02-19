@@ -12,11 +12,14 @@ const useOpenAiChat = () => {
   const clickedMovie = useSelector((store) => store?.clickedMovie?.movieData);
   const user = useSelector((store) => store.user);
   const requestInProgress = useRef(false);
+  const lastProcessedMovieId = useRef(null);
 
   // Clear recommendations when unmounting
   useEffect(() => {
     return () => {
       dispatch(clearRecommendations());
+      requestInProgress.current = false;
+      lastProcessedMovieId.current = null;
     };
   }, [dispatch]);
 
@@ -26,12 +29,15 @@ const useOpenAiChat = () => {
       return;
     }
 
-    if (requestInProgress.current) return;
+    // Prevent duplicate processing for the same movie
+    if (requestInProgress.current || lastProcessedMovieId.current === clickedMovie.id) {
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
     dispatch(setGlobalError(null));
-    dispatch(clearRecommendations()); // Clear old recommendations before fetching new ones
+    dispatch(clearRecommendations());
     requestInProgress.current = true;
 
     try {
@@ -57,6 +63,7 @@ const useOpenAiChat = () => {
 
       // Update Redux store
       dispatch(setMovieRecommendations(recommendations));
+      lastProcessedMovieId.current = clickedMovie.id;
       return recommendations;
 
     } catch (err) {
