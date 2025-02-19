@@ -2,12 +2,47 @@ import { motion } from "framer-motion";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 
 const ShimmerCard = () => (
-  <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-gray-800">
-    <motion.div
-      className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
-      animate={{ translateX: ["100%", "-100%"] }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-    />
+  <div className="relative h-[280px] w-[200px] overflow-hidden rounded-lg bg-zinc-800">
+    {/* Poster Shimmer */}
+    <div className="h-full w-full">
+      <motion.div
+        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        animate={{ translateX: ["100%", "-100%"] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+      />
+    </div>
+
+    {/* Content Shimmer */}
+    <div className="absolute bottom-0 w-full space-y-2 bg-gradient-to-t from-black p-4">
+      {/* Title Shimmer */}
+      <div className="h-4 w-3/4 rounded bg-zinc-700">
+        <motion.div
+          className="h-full w-full -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          animate={{ translateX: ["100%", "-100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: 0.2 }}
+        />
+      </div>
+
+      {/* Rating Shimmer */}
+      <div className="h-3 w-1/4 rounded bg-zinc-700">
+        <motion.div
+          className="h-full w-full -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          animate={{ translateX: ["100%", "-100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: 0.4 }}
+        />
+      </div>
+    </div>
+
+    {/* AI Badge Shimmer */}
+    <div className="absolute right-2 top-2">
+      <div className="h-6 w-20 rounded-full bg-zinc-700">
+        <motion.div
+          className="h-full w-full -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          animate={{ translateX: ["100%", "-100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: 0.6 }}
+        />
+      </div>
+    </div>
   </div>
 );
 
@@ -16,43 +51,23 @@ const RecommendedMovieShimmer = () => {
 
   if (isMobile) {
     return (
-      <div className="px-4">
-        <div className="flex gap-4">
-          {[1, 2].map((i) => (
-            <div key={i} className="w-1/2">
-              <ShimmerCard />
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-4 px-4">
+        {[1, 2].map((i) => (
+          <ShimmerCard key={i} />
+        ))}
       </div>
     );
   }
 
-  // Desktop layout with exactly 10 items in 2 rows
-  const itemsPerRow = 5; // 5 items per row for 10 total
   return (
     <div className="space-y-8 px-6">
       {[0, 1].map((row) => (
         <div
           key={row}
-          className="flex flex-wrap justify-start gap-6"
-          style={{
-            '--min-card-width': '200px',
-            '--gap': '1.5rem',
-          }}
+          className="grid grid-cols-5 gap-6"
         >
-          {Array.from({ length: itemsPerRow }).map((_, i) => (
-            <div
-              key={`${row}-${i}`}
-              className="flex-grow"
-              style={{
-                flexBasis: 'var(--min-card-width)',
-                maxWidth: '300px',
-                minWidth: 'var(--min-card-width)',
-              }}
-            >
-              <ShimmerCard />
-            </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ShimmerCard key={`${row}-${i}`} />
           ))}
         </div>
       ))}
