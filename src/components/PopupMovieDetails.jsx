@@ -23,7 +23,7 @@ const PopupMovieDetails = ({ movie, x }) => {
   } = movie;
 
   const handlePlayClick = () => {
-    navigate(`/browse/${id}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+    navigate(`/browse/${id}`);
   };
 
   const style = {
@@ -121,12 +121,12 @@ const PopupMovieDetails = ({ movie, x }) => {
         </div>
 
         {/* Popularity Badge */}
-        {popularity > 100 && (
+        {/* {popularity > 100 && (
           <div className="mt-4 flex items-center gap-2 rounded-md bg-purple-500/10 p-2 text-sm text-purple-400">
             <FaThumbsUp className="text-xs" />
             Popular on CORNFLIX
           </div>
-        )}
+        )} */}
       </div>
     </motion.div>
   );
