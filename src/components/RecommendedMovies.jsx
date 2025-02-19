@@ -90,7 +90,7 @@ const RecommendedMovies = ({ movie }) => {
 
   return (
     <div className="space-y-6">
-      <div className="px-6">
+      <div>
         <h2 className="text-lg font-medium text-white md:text-xl">
           AI Recommended Movies
         </h2>
