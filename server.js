@@ -62,7 +62,7 @@ app.post("/api/chat", async (req, res) => {
       messages: [
         {
           role: "user",
-          content: `Based on the movie "${movieTitle}" (genres: ${genres}), suggest 12 similar movies that fans would enjoy. Return ONLY a comma-separated list of movie titles.`
+          content: `Based on the movie "${movieTitle}" (genres: ${genres}), suggest 10 similar movies that fans would enjoy. Return ONLY a comma-separated list of movie titles.`
         }
       ],
       temperature: 0.7,
