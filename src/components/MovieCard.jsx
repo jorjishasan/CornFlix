@@ -8,7 +8,7 @@ const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/browse/${id}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+    navigate(`/browse/${id}`);
   };
 
   return (
@@ -56,7 +56,7 @@ const MovieCard = ({ movie }) => {
               className="rounded-full bg-white p-2 text-black transition-transform hover:bg-white/90"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/browse/${id}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                navigate(`/browse/${id}`);
               }}
             >
               <FaPlay className="text-xs" />
