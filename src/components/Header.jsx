@@ -4,12 +4,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleAiSearchComponent } from "../redux/aiSearchSlice";
 import { Link } from "react-router-dom";
 import { 
   FaRobot, FaSignOutAlt, FaCog, FaChevronDown,
   FaFilm, FaUser, FaSearch, FaBell
 } from "react-icons/fa";
+import CreditCounter from "./CreditCounter";
 
 const QuickActions = () => (
   <div className="hidden items-center gap-3 lg:flex">
@@ -46,7 +46,6 @@ const NotificationBadge = () => (
 
 const Header = () => {
   const user = useSelector((store) => store.user);
-  const showAiSearchComponent = useSelector((store) => store.aiSearch.showAiSearch);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const headerRef = useRef(null);
@@ -146,24 +145,8 @@ const Header = () => {
         {/* Right Section */}
         {user ? (
           <div className="flex items-center gap-4">
-            {/* AI Search CTA */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => dispatch(toggleAiSearchComponent())}
-              className={`group flex items-center gap-2 rounded-md px-4 py-2 transition-all duration-300 ${
-                showAiSearchComponent
-                  ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-600/20"
-                  : "bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <FaRobot className={`text-lg ${
-                showAiSearchComponent ? "text-white" : "text-gray-400 group-hover:text-white"
-              }`} />
-              <span className="hidden font-ui text-sm font-medium transition-colors md:inline">
-                AI Search
-              </span>
-            </motion.button>
+            {/* Credit Counter */}
+            <CreditCounter />
 
             {/* Notifications */}
             <div className="hidden md:block">
