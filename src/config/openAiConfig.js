@@ -15,7 +15,6 @@ const openAiClient = {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        credentials: "include",
         mode: "cors",
         body: JSON.stringify(data),
       });
@@ -27,7 +26,8 @@ const openAiClient = {
 
       return await response.json();
     } catch (error) {
-      console.error("API request failed:", error);
+      // Log the error but don't expose internal URLs in production
+      console.error("API request failed:", error.message);
       throw error;
     }
   },

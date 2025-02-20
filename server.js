@@ -15,28 +15,64 @@ if (!process.env.VITE_OPENAI_API_KEY) {
 
 const app = express();
 
-// Allowed domains should come from environment variables
-const allowedOrigins = process.env.VITE_ALLOWED_ORIGINS 
-  ? process.env.VITE_ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173']; // Default to localhost only
+// Allowed domains configuration
+const allowedDomains = {
+  development: ['http://localhost:5173'],
+  production: [
+    'cornflix.app',
+    'www.cornflix.app',
+    'corn-flix-gamma.vercel.app',
+    'www.corn-flix-gamma.vercel.app'
+  ]
+};
+
+// Helper function to check if origin matches allowed domains
+const isOriginAllowed = (origin) => {
+  if (!origin) return true; // Allow requests with no origin
+  
+  const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? allowedDomains.production
+    : allowedDomains.development;
+
+  // Parse the origin URL
+  try {
+    const originUrl = new URL(origin);
+    const hostname = originUrl.hostname;
+
+    // Check if hostname matches any allowed domain
+    return allowedOrigins.some(domain => 
+      hostname === domain || // Exact match
+      hostname.endsWith('.' + domain) // Subdomain match
+    );
+  } catch (error) {
+    console.error('Invalid origin:', origin);
+    return false;
+  }
+};
 
 // Configure CORS with proper error handling
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, Postman, or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (isOriginAllowed(origin)) {
+      // Return the actual origin instead of true
+      callback(null, origin);
+    } else {
+      callback(new Error('CORS policy violation'));
     }
-    return callback(null, true);
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 }));
+
+// Add CORS headers middleware for preflight
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  next();
+});
 
 app.use(express.json());
 
