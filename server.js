@@ -19,7 +19,8 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://cornflix.app',
-  'https://corn-flix-gamma.vercel.app'
+  'https://corn-flix-gamma.vercel.app',
+  'https://cornflix-backend.onrender.com'
 ];
 
 // Configure CORS
