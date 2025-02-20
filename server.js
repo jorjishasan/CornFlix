@@ -15,18 +15,15 @@ if (!process.env.VITE_OPENAI_API_KEY) {
 
 const app = express();
 
-// Allowed domains
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://cornflix.app',
-  'https://corn-flix-gamma.vercel.app',
-  'https://cornflix-backend.onrender.com'
-];
+// Allowed domains should come from environment variables
+const allowedOrigins = process.env.VITE_ALLOWED_ORIGINS 
+  ? process.env.VITE_ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173']; // Default to localhost only
 
-// Configure CORS
+// Configure CORS with proper error handling
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (like mobile apps, Postman, or curl requests)
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) === -1) {
@@ -35,8 +32,10 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  methods: ['GET', 'POST'],
-  credentials: true
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json());
