@@ -8,77 +8,33 @@ import { OpenAI } from "openai";
 dotenv.config();
 
 // Validate required environment variables
-if (!process.env.VITE_OPENAI_API_KEY) {
+if (!process.env.OPENAI_API_KEY) {
   console.error("Missing OPENAI_API_KEY environment variable");
   process.exit(1);
 }
 
 const app = express();
 
-// Allowed domains configuration
-const allowedDomains = {
-  development: ['http://localhost:5173'],
-  production: [
-    'cornflix.app',
-    'www.cornflix.app',
-    'corn-flix-gamma.vercel.app',
-    'www.corn-flix-gamma.vercel.app'
-  ]
+// Simplified CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? [
+        'https://corn-flix-gamma.vercel.app',
+        'https://cornflix.app',
+        'https://www.cornflix.app',
+        'http://localhost:5173'  // Keep this if you want to test production API locally
+      ]
+    : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS']
 };
 
-// Helper function to check if origin matches allowed domains
-const isOriginAllowed = (origin) => {
-  if (!origin) return true; // Allow requests with no origin
-  
-  const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? allowedDomains.production
-    : allowedDomains.development;
-
-  // Parse the origin URL
-  try {
-    const originUrl = new URL(origin);
-    const hostname = originUrl.hostname;
-
-    // Check if hostname matches any allowed domain
-    return allowedOrigins.some(domain => 
-      hostname === domain || // Exact match
-      hostname.endsWith('.' + domain) // Subdomain match
-    );
-  } catch (error) {
-    console.error('Invalid origin:', origin);
-    return false;
-  }
-};
-
-// Configure CORS with proper error handling
-app.use(cors({
-  origin: (origin, callback) => {
-    if (isOriginAllowed(origin)) {
-      // Return the actual origin instead of true
-      callback(null, origin);
-    } else {
-      callback(new Error('CORS policy violation'));
-    }
-  },
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
-}));
-
-// Add CORS headers middleware for preflight
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (isOriginAllowed(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  next();
-});
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 // OpenAI API endpoint
