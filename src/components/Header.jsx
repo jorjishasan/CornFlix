@@ -235,7 +235,7 @@ const Header = () => {
         ) : (
           <button
             onClick={() => navigate("/")}
-            className="rounded-md bg-gradient-to-r from-indigo-600 to-pink-500 px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:from-indigo-500 hover:to-pink-400 hover:shadow-xl"
+            className="rounded-md bg-red-600 px-6 py-2 font-medium text-white shadow-lg transition-all duration-300 hover:bg-red-700"
           >
             Sign In
           </button>
