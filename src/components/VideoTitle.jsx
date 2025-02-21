@@ -32,7 +32,7 @@ const VideoTitle = ({ title, description }) => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="mx-auto flex min-h-[60vh] max-w-screen-xl items-center px-4 sm:px-6 lg:px-8"
+        className="mx-auto flex min-h-[60vh] max-w-screen-xl items-center px-4 sm:px-6 lg:px-8 xl:mt-20"
       >
         <div className="max-w-2xl">
           <motion.h1
