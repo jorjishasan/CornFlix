@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
+import path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -31,6 +32,16 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('dist')); // Assuming your build output is in 'dist'
+  
+  // Handle client-side routing
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
 
 // Initialize OpenAI client
 const openai = new OpenAI({
