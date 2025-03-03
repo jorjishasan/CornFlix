@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { OpenAI } from "openai";
 import path from "path";
+import { fileURLToPath } from "url";
 
 // Load environment variables
 dotenv.config();
@@ -35,6 +36,9 @@ app.use(express.json());
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  
   app.use(express.static('dist')); // Assuming your build output is in 'dist'
   
   // Handle client-side routing
