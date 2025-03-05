@@ -19,7 +19,6 @@ const AVATAR_OPTIONS = [
   "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=d1ffd7",
   "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=ffdfbf",
   "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=e2d1ff",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&backgroundColor=ffd1e8",
 ];
 
 // Get random avatar URL
@@ -29,8 +28,8 @@ const getRandomAvatar = () => {
 
 // Demo credentials
 const DEMO_CREDENTIALS = {
-  email: "youarecute@cornflix.com",
-  password: "0.Youarecute",
+  email: "jorjis@cornflix.app",
+  password: "12345678Yy",
 };
 
 const Login = () => {
