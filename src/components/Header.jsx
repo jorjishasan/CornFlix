@@ -86,7 +86,7 @@ const Header = () => {
               <img
                 src="/BrandLogo.png"
                 alt="CornFlix Logo"
-                className="ml-2 h-10"
+                className="ml-2 h-9"
               />
             </h1>
           </Link>
