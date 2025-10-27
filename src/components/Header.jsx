@@ -5,7 +5,14 @@ import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { FaSignOutAlt, FaBell, FaUser, FaCog, FaCoins, FaTimes } from "react-icons/fa";
+import {
+  FaSignOutAlt,
+  FaBell,
+  FaUser,
+  FaCog,
+  FaCoins,
+  FaTimes,
+} from "react-icons/fa";
 import CreditCounter from "./CreditCounter";
 
 const NotificationItem = ({ icon: Icon, title, time, color = "purple" }) => (
@@ -35,14 +42,17 @@ const Header = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
         setShowNotifications(false);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
@@ -59,8 +69,8 @@ const Header = () => {
   return (
     <header
       className={`fixed z-50 w-full transition-all duration-500 ${
-        isScrolled 
-          ? "bg-zinc-900/95 shadow-lg backdrop-blur-sm" 
+        isScrolled
+          ? "bg-zinc-900/95 shadow-lg backdrop-blur-sm"
           : "bg-gradient-to-b from-black/80 via-black/50 to-transparent"
       }`}
     >
@@ -69,21 +79,37 @@ const Header = () => {
         <div className="flex items-center gap-12">
           {/* Logo */}
           <Link to={user ? "/browse" : "/"}>
-            <h1 className="font-display text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#E50914] to-[#B20710] hover:from-[#B20710] hover:to-[#E50914] transition-all duration-300">
-              CORNFLIX
+            <h1 className="relative">
+              <span className="absolute -m-[1px] h-[1px] w-[1px] overflow-hidden">
+                CORNFLIX
+              </span>
+              <img
+                src="/BrandLogo.png"
+                alt="CornFlix Logo"
+                className="ml-2 h-10"
+              />
             </h1>
           </Link>
 
           {/* Navigation */}
           {user && (
             <nav className="hidden items-center gap-8 lg:flex">
-              <Link to="#" className="text-sm font-medium text-gray-300 transition-colors hover:text-white">
+              <Link
+                to="#"
+                className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+              >
                 Browse
               </Link>
-              <Link to="#" className="text-sm font-medium text-gray-300 transition-colors hover:text-white">
+              <Link
+                to="#"
+                className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+              >
                 Movies
               </Link>
-              <Link to="#" className="text-sm font-medium text-gray-300 transition-colors hover:text-white">
+              <Link
+                to="#"
+                className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+              >
                 Series
               </Link>
             </nav>
@@ -98,14 +124,14 @@ const Header = () => {
 
             {/* Notifications */}
             <div className="relative hidden lg:block" ref={notificationRef}>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative"
               >
                 <FaBell className="text-lg text-gray-400 transition-colors hover:text-white" />
-                <motion.span 
+                <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#E50914] text-[10px] font-bold"
@@ -121,11 +147,11 @@ const Header = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ type: "spring", duration: 0.3 }}
-                    className="absolute right-0 mt-2 w-80 origin-top-right rounded-lg bg-zinc-900/95 p-2 shadow-xl backdrop-blur-sm ring-1 ring-white/10"
+                    className="absolute right-0 mt-2 w-80 origin-top-right rounded-lg bg-zinc-900/95 p-2 shadow-xl ring-1 ring-white/10 backdrop-blur-sm"
                   >
                     <div className="mb-2 flex items-center justify-between border-b border-white/10 pb-2">
                       <h3 className="font-medium text-white">Notifications</h3>
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setShowNotifications(false)}
@@ -134,7 +160,7 @@ const Header = () => {
                         <FaTimes className="text-sm" />
                       </motion.button>
                     </div>
-                    <motion.div 
+                    <motion.div
                       initial="hidden"
                       animate="visible"
                       variants={{
@@ -142,9 +168,9 @@ const Header = () => {
                         visible: {
                           opacity: 1,
                           transition: {
-                            staggerChildren: 0.1
-                          }
-                        }
+                            staggerChildren: 0.1,
+                          },
+                        },
                       }}
                       className="space-y-1"
                     >
@@ -153,25 +179,25 @@ const Header = () => {
                           icon: FaCoins,
                           title: "You received 50 credits!",
                           time: "Just now",
-                          color: "yellow"
+                          color: "yellow",
                         },
                         {
                           icon: FaUser,
                           title: "Profile updated successfully",
-                          time: "1 hour ago"
+                          time: "1 hour ago",
                         },
                         {
                           icon: FaCoins,
                           title: "5 credits used for recommendations",
                           time: "2 hours ago",
-                          color: "red"
-                        }
+                          color: "red",
+                        },
                       ].map((item, index) => (
                         <motion.div
                           key={index}
                           variants={{
                             hidden: { opacity: 0, x: -20 },
-                            visible: { opacity: 1, x: 0 }
+                            visible: { opacity: 1, x: 0 },
                           }}
                         >
                           <NotificationItem {...item} />
@@ -201,21 +227,19 @@ const Header = () => {
 
               <AnimatePresence>
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-64 origin-top-right rounded-lg bg-zinc-900/95 p-1 shadow-xl backdrop-blur-sm ring-1 ring-white/10">
+                  <div className="absolute right-0 mt-2 w-64 origin-top-right rounded-lg bg-zinc-900/95 p-1 shadow-xl ring-1 ring-white/10 backdrop-blur-sm">
                     <div className="border-b border-white/10 p-4">
-                      <p className="font-medium text-white">{user.displayName}</p>
+                      <p className="font-medium text-white">
+                        {user.displayName}
+                      </p>
                       <p className="text-xs text-gray-400">{user.email}</p>
                     </div>
                     <div className="p-1">
-                      <button
-                        className="flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-left text-gray-300 transition-colors duration-300 hover:bg-white/10 hover:text-white"
-                      >
+                      <button className="flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-left text-gray-300 transition-colors duration-300 hover:bg-white/10 hover:text-white">
                         <FaUser className="text-lg text-gray-400" />
                         <span className="text-sm">Profile</span>
                       </button>
-                      <button
-                        className="flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-left text-gray-300 transition-colors duration-300 hover:bg-white/10 hover:text-white"
-                      >
+                      <button className="flex w-full items-center gap-3 rounded-md px-4 py-2.5 text-left text-gray-300 transition-colors duration-300 hover:bg-white/10 hover:text-white">
                         <FaCog className="text-lg text-gray-400" />
                         <span className="text-sm">Settings</span>
                       </button>
